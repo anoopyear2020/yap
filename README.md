@@ -13,8 +13,7 @@ ModelType contact = new ModelType("Contact")
         .relationship(new HasMany("phone_numbers")
             .type("PhoneNumber")
             .column("contact_id")
-            .orderColumn("position")
-            .deleteOrphans(true));
+            .orderColumn("position"));
 
 ModelType phoneNumber = new ModelType("PhoneNumber")
         .table("phone_numbers")
