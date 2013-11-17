@@ -1,26 +1,26 @@
 package org.yapframework.metadata;
 
-public class HasMany extends CollectionRelationship {
-    private boolean destroyOrphans;
+public class HasMany extends CollectionRelationship<HasMany> {
+    private boolean destroyOrphans = true;
     private String orderColumn;
 
-    public HasMany(String name, String column, String relatedToType, boolean destroyDependant, String orderColumn) {
-        super(name, column, relatedToType);
-        this.destroyOrphans = destroyDependant;
-        this.orderColumn = orderColumn;
+    public HasMany(String name) {
+        super(name);
     }
 
     public String getOrderColumn() {
         return orderColumn;
     }
-    public void setOrderColumn(String orderColumn) {
+    public HasMany orderColumn(String orderColumn) {
         this.orderColumn = orderColumn;
+        return this;
     }
 
-    public boolean isDestroyOrphans() {
+    public boolean isDeleteOrphans() {
         return destroyOrphans;
     }
-    public void setDestroyOrphans(boolean destroyOrphans) {
+    public HasMany deleteOrphans(boolean destroyOrphans) {
         this.destroyOrphans = destroyOrphans;
+        return this;
     }
 }

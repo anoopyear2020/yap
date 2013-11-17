@@ -1,6 +1,6 @@
 package org.yapframework;
 
-import org.yapframework.metadata.ModelMetaData;
+import org.yapframework.metadata.ModelType;
 
 import java.util.HashMap;
 import java.util.List;
@@ -11,18 +11,18 @@ import java.util.Map;
  */
 public class Model {
     private Map<String,Object> values;
-    private ModelMetaData metaData;
+    private ModelType metaData;
     private PersistenceContext context;
     private int order;
     private boolean markedForDestruction;
 
-    public Model(ModelMetaData metaData, PersistenceContext context) {
+    public Model(ModelType metaData, PersistenceContext context) {
         this.metaData = metaData;
         this.context = context;
         values = new HashMap<String,Object>();
     }
 
-    Model(Map<String,Object> values, ModelMetaData metaData, PersistenceContext context) {
+    Model(Map<String,Object> values, ModelType metaData, PersistenceContext context) {
         this.values = values;
         this.metaData = metaData;
         this.context = context;
@@ -32,7 +32,7 @@ public class Model {
      * Gets the persistence metadata.
      * @return
      */
-    public ModelMetaData getMetaData() {
+    public ModelType getMetaData() {
         return metaData;
     }
 
@@ -144,7 +144,7 @@ public class Model {
     public boolean equals(Object obj) {
         if(obj instanceof Model) {
             Object id = getId();
-            String type = metaData.getType();
+            String type = metaData.getName();
 
             if(id == null || type == null) {
                 return super.equals(obj);
@@ -152,7 +152,7 @@ public class Model {
                 Model model = (Model) obj;
 
                 if(model.metaData != null) {
-                    return id.equals(model.getId()) && type.equals(model.metaData.getType());
+                    return id.equals(model.getId()) && type.equals(model.metaData.getName());
                 }
             }
         }

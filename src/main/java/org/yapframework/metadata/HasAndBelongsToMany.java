@@ -1,38 +1,38 @@
 package org.yapframework.metadata;
 
-public class HasAndBelongsToMany extends CollectionRelationship {
+public class HasAndBelongsToMany extends CollectionRelationship<HasAndBelongsToMany> {
     private String table;
     private String foreignKeyColumn;
     private String orderColumn;
 
-    public HasAndBelongsToMany(String name, String column, String relatedToType, String table, String foreignKeyColumn, String orderColumn) {
-        super(name, column, relatedToType);
-        this.table = table;
-        this.foreignKeyColumn = foreignKeyColumn;
-        this.orderColumn = orderColumn;
+    public HasAndBelongsToMany(String name) {
+        super(name);
     }
 
     public String getTable() {
         return table;
     }
 
-    public void setTable(String table) {
+    public HasAndBelongsToMany table(String table) {
         this.table = table;
+        return this;
     }
 
     public String getForeignKeyColumn() {
         return foreignKeyColumn;
     }
 
-    public void setForeignKeyColumn(String foreignKeyColumn) {
+    public HasAndBelongsToMany foreignKeyColumn(String foreignKeyColumn) {
         this.foreignKeyColumn = foreignKeyColumn;
+        return this;
     }
 
     public String getOrderColumn() {
         return orderColumn;
     }
 
-    public void setOrderColumn(String orderColumn) {
+    public HasAndBelongsToMany orderColumn(String orderColumn) {
         this.orderColumn = orderColumn;
+        return this;
     }
 }

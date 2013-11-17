@@ -3,7 +3,7 @@ package org.yapframework.test;
 import org.apache.log4j.Logger;
 import org.yapframework.Model;
 import org.yapframework.PersistenceContext;
-import org.yapframework.metadata.ModelMetaData;
+import org.yapframework.metadata.ModelType;
 
 import java.sql.SQLException;
 import java.util.LinkedList;
@@ -40,7 +40,7 @@ public class MonkeyTests {
         groups.add(ctx.find("group", 2));
 
         // phone numbers
-        ModelMetaData phoneNumberMd = ctx.metaDataFor("phone_number");
+        ModelType phoneNumberMd = ctx.metaDataFor("phone_number");
         List<Model> phoneNumbers = new LinkedList<Model>();
         phoneNumbers.add(new Model(phoneNumberMd, ctx).set("number", "973-729-6485").set("type", "Home"));
         phoneNumbers.add(new Model(phoneNumberMd, ctx).set("number", "410-940-3959").set("type", "Mobile"));

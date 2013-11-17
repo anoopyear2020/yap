@@ -1,11 +1,11 @@
 package org.yapframework.metadata;
 
 /**
- * A relationship that yields a collection.  This class is primarily used to distinguish relationships stored in
+ * A relationship that yields a collection.  This class is primarily used to distinguish relationship stored in
  * the owner model table from those stored in a related table.
  */
-public class CollectionRelationship extends Relationship {
-    public CollectionRelationship(String name, String column, String relatedToType) {
-        super(name, column, relatedToType);
+public class CollectionRelationship<T> extends Relationship<T> {
+    public CollectionRelationship(String name) {
+        super(name);
     }
 }

@@ -11,7 +11,7 @@ import org.yapframework.PersistenceContext;
 import org.yapframework.metadata.BelongsTo;
 import org.yapframework.metadata.HasAndBelongsToMany;
 import org.yapframework.metadata.HasMany;
-import org.yapframework.metadata.ModelMetaData;
+import org.yapframework.metadata.ModelType;
 
 import javax.sql.DataSource;
 
@@ -24,10 +24,10 @@ public class PostgresTestConfiguration {
         try {
             PersistenceContext ctx = new PersistenceContext()
                     .setDataSource(ds)
-                    .configure(createContactModelMetaData())
-                    .configure(createPhoneNumberModelMetaData())
-                    .configure(createGroupsMetaData())
-                    .configure(createGenderModelMetaData())
+                    .configure(createContactModelType())
+                    .configure(createPhoneNumberModelType())
+                    .configure(createGroupModelType())
+                    .configure(createGenderModelType())
                     .setDialect(SQLDialect.POSTGRES)
                     .init();
 
@@ -37,32 +37,28 @@ public class PostgresTestConfiguration {
         }
     }
 
-    private static ModelMetaData createGenderModelMetaData() {
-        return new ModelMetaData()
-                .setTable("genders")
-                .setType("gender");
+    private static ModelType createGenderModelType() {
+        return new ModelType("Gender")
+                .table("genders");
     }
 
-    private static ModelMetaData createContactModelMetaData() {
-        return new ModelMetaData()
-                .setTable("contacts")
-                .setType("contact")
-                .addRelationship(new BelongsTo("gender", "gender_id", "gender"))
-                .addRelationship(new HasMany("phone_numbers", "contact_id", "phone_number", true, "position"))
-                .addRelationship(new HasAndBelongsToMany("groups", "group_id", "group", "contacts_groups", "contact_id", "position"));
+    private static ModelType createContactModelType() {
+        return new ModelType("Contact")
+                .table("contacts")
+                .relationship(new HasMany("phone_numbers").type("PhoneNumber").column("contact_id").orderColumn("position").deleteOrphans(true))
+                .relationship(new BelongsTo("gender").type("Gender").column("gender_id"))
+                .relationship(new HasAndBelongsToMany("groups").type("Group").column("group_id").table("contacts_groups").foreignKeyColumn("contact_id").orderColumn("position"));
     }
 
-    private static ModelMetaData createPhoneNumberModelMetaData() {
-        return new ModelMetaData()
-                .setTable("phone_numbers")
-                .setType("phone_number")
-                .addRelationship(new BelongsTo("contact", "contact_id", "contact"));
+    private static ModelType createPhoneNumberModelType() {
+        return new ModelType("PhoneNumber")
+                .table("phone_numbers")
+                .relationship(new BelongsTo("contact").type("Contact").column("contact_id"));
     }
 
-    private static ModelMetaData createGroupsMetaData() {
-        return new ModelMetaData()
-                .setTable("groups")
-                .setType("group");
+    private static ModelType createGroupModelType() {
+        return new ModelType("Group")
+                .table("groups");
     }
 
     private static DataSource configureDataSource() throws ClassNotFoundException, IllegalAccessException, InstantiationException {

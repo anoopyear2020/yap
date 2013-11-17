@@ -18,11 +18,11 @@ import static org.jooq.impl.DSL.table;
 public class PersistenceContext {
     private SQLDialect dialect;
     private DataSource dataSource;
-    private Map<String, ModelMetaData> configuration = new HashMap<String, ModelMetaData>();
+    private Map<String, ModelType> configuration = new HashMap<String, ModelType>();
     private DSLContext jooq;
 
-    public PersistenceContext configure(ModelMetaData md) {
-        configuration.put(md.getType(), md);
+    public PersistenceContext configure(ModelType md) {
+        configuration.put(md.getName(), md);
         return this;
     }
 
@@ -45,7 +45,7 @@ public class PersistenceContext {
         return jooq;
     }
 
-    public ModelMetaData metaDataFor(String type) {
+    public ModelType metaDataFor(String type) {
         return configuration.get(type);
     }
 
@@ -65,7 +65,7 @@ public class PersistenceContext {
      * @return
      */
     public Model find(String type, Object id) {
-        ModelMetaData md = metaDataFor(type);
+        ModelType md = metaDataFor(type);
 
         if(md == null) {
             throw new InvalidModelTypeException("Model type \"" + type + "\" not found.  Did you forget to configure this type in the PersistenceContext?");
@@ -92,7 +92,7 @@ public class PersistenceContext {
      * @param model
      */
     public void delete(Model model) {
-        ModelMetaData md = model.getMetaData();
+        ModelType md = model.getMetaData();
         jooq.delete(table(md.getTable()))
                 .where(field(md.getPrimaryKey()).equal(model.getValues().get(md.getPrimaryKey())))
                 .execute();
@@ -107,7 +107,7 @@ public class PersistenceContext {
      * @return
      */
     public <T> T fetch(Model model, String fieldName, Class<T> retClass) {
-        ModelMetaData metaData = model.getMetaData();
+        ModelType metaData = model.getMetaData();
 
         /*
          * If fieldName is not found as a key in the value map, it must be a lazy-loaded relationship
@@ -143,7 +143,7 @@ public class PersistenceContext {
     // TODO check for unsaved transient belongsTo
     private void insert(Model model, HasMany relationship, Object foreignKeyValue) {
         validate(model);
-        ModelMetaData md = model.getMetaData();
+        ModelType md = model.getMetaData();
 
         jooq.insertInto(table(md.getTable()))
                 .set(toFieldValueMap(model, relationship, foreignKeyValue))
@@ -163,7 +163,7 @@ public class PersistenceContext {
      */
     private void update(Model model, HasMany relationship, Object foreignKeyValue) {
         validate(model);
-        ModelMetaData md = model.getMetaData();
+        ModelType md = model.getMetaData();
 
         jooq.update(table(md.getTable()))
                 .set(toFieldValueMap(model, relationship, foreignKeyValue))
@@ -179,7 +179,7 @@ public class PersistenceContext {
      */
     private Map<Field<?>, Object> toFieldValueMap(Model model, HasMany relationship, Object foreignKeyValue) {
         Map<Field<?>, Object> result = new HashMap<Field<?>, Object>();
-        ModelMetaData md = model.getMetaData();
+        ModelType md = model.getMetaData();
         String primaryKey = md.getPrimaryKey();
 
         for(Map.Entry<String, Object> entry:model.getValues().entrySet()) {
@@ -236,11 +236,11 @@ public class PersistenceContext {
     }
 
     /**
-     * Saves all collection relationships for a model
+     * Saves all collection relationship for a model
      * @param model
      */
     private void saveCollections(Model model) {
-        ModelMetaData md = model.getMetaData();
+        ModelType md = model.getMetaData();
 
         for(Relationship rel:md.getRelationships().values()) {
             if(rel instanceof HasMany) {
@@ -259,7 +259,7 @@ public class PersistenceContext {
     private void save(HasMany rel, Model model) {
         List<Model> items = model.get(rel.getName(), List.class);
         List<Object> idsToKeep = new LinkedList<Object>();
-        ModelMetaData itemMetaData = metaDataFor(rel.getRelatedToType());
+        ModelType itemMetaData = metaDataFor(rel.getType());
 
         if(items != null) {
             int order = 0;
@@ -280,7 +280,7 @@ public class PersistenceContext {
                         .fetch();
 
                 for(Record r:recordsToDelete) {
-                    if(rel.isDestroyOrphans()) {
+                    if(rel.isDeleteOrphans()) {
                         Model item = new Model(r.intoMap(), itemMetaData, this);
                         delete(item);
                     } else {
@@ -364,7 +364,7 @@ public class PersistenceContext {
      * @return
      */
     private List<Model> fetchHasMany(HasMany rel, Object foreignKeyValue) {
-        ModelMetaData related = metaDataFor(rel.getRelatedToType());
+        ModelType related = metaDataFor(rel.getType());
 
         SelectConditionStep<Record> select = jooq.select()
                 .from(related.getTable())
@@ -392,7 +392,7 @@ public class PersistenceContext {
      * @return
      */
     private Model fetchBelongsTo(BelongsTo rel, Object foreignKeyValue) {
-        return foreignKeyValue == null ? null : find(rel.getRelatedToType(), foreignKeyValue);
+        return foreignKeyValue == null ? null : find(rel.getType(), foreignKeyValue);
     }
 
     /**
@@ -406,7 +406,7 @@ public class PersistenceContext {
         List<Model> models = new LinkedList<Model>();
 
         for(Record relation:relations) {
-            models.add(find(rel.getRelatedToType(), relation.getValue(rel.getColumn())));
+            models.add(find(rel.getType(), relation.getValue(rel.getColumn())));
         }
 
         return models;
