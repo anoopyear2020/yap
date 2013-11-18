@@ -35,7 +35,7 @@ ModelType contact = new ModelType("Contact")
 ModelType phoneNumber = new ModelType("PhoneNumber")
         .table("phone_numbers")
 
-PersistenceContext ctx = new PersistenceContext()
+PersistenceContext yap = new PersistenceContext()
         .setDataSource(myDataSource)
         .configure(contact)
         .configure(phoneNumber)
@@ -45,7 +45,7 @@ PersistenceContext ctx = new PersistenceContext()
 
 Save a new model instance:
 ```java
-Model newContact = context.create("Contact");
+Model newContact = yap.create("Contact");
 newContact.set("first_name", "Jane");
 newContact.save();
 Integer id = newContact.getId();
@@ -53,7 +53,7 @@ Integer id = newContact.getId();
 
 Find a model instance:
 ```java
-Model contact = ctx.find("Contact", id);
+Model contact = yap.find("Contact", id);
 String firstName = contact.get("first_name", String.class); // get simple property
 List<Model> phoneNumbers = contact.getList("phoneNumbers"); // get relationship property, lazy-loaded!
 ```
