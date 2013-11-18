@@ -47,6 +47,22 @@ newContact.save();
 Integer id = newContact.getId();
 ```
 
+Building Yap
+------------
+Yap is a standard Maven project.  Yap's unit tests require a Postgres database, therefore I recommend running:
+
+    mvn clean install -DskipTests
+
+Running the Unit Tests
+----------------------
+
+If you want to run the unit tests, you need to create a database then run liquibase to create the test schema:
+
+    mvn liquibase:update
+    mvn test
+
+See liquibase.properties and unitils.properties for the database configuration
+
 Database Support
 ----------------
 Yap is currently under development and only supports Postgres.  Since Yap is built on top of jooq, we expect to support the following platforms soon:
