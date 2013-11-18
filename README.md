@@ -6,7 +6,24 @@ Yap
 
 Using
 -----
-Configure a PersistenceContext:
+Create your tables using SQL:
+```sql
+CREATE TABLE contacts (
+    id serial PRIMARY KEY,
+    first_name varchar(50),
+    last_name varchar(50)
+);
+
+CREATE TABLE phone_numbers (
+    id serial PRIMARY KEY,
+    contact_id integer,
+    type varchar(10),
+    number varchar(20),
+    position integer
+);
+```
+
+Configure a yap PersistenceContext:
 ```java
 ModelType contact = new ModelType("Contact")
         .table("contacts")
@@ -26,9 +43,17 @@ PersistenceContext ctx = new PersistenceContext()
         .init();
 ```
 
+Save a new model instance:
+```java
+Model newContact = context.create("Contact");
+newContact.set("first_name", "Jane");
+newContact.save();
+Integer id = newContact.getId();
+```
+
 Find a model instance:
 ```java
-Model contact = ctx.find("Contact", 1); // find contact with id=1
+Model contact = ctx.find("Contact", id);
 String firstName = contact.get("first_name", String.class); // get simple property
 List<Model> phoneNumbers = contact.getList("phoneNumbers"); // get relationship property, lazy-loaded!
 ```
@@ -37,14 +62,6 @@ Make a change:
 ```java
 contact.set("first_name", "Joe");
 contact.save();
-```
-
-Save a new model instance:
-```java
-Model newContact = context.create("Contact");
-newContact.set("first_name", "Jane");
-newContact.save();
-Integer id = newContact.getId();
 ```
 
 Building Yap
@@ -65,12 +82,20 @@ See liquibase.properties and unitils.properties for the database configuration
 
 Database Support
 ----------------
-Yap is currently under development and only supports Postgres.  Since Yap is built on top of jooq, we expect to support the following platforms soon:
+Yap is currently under development and only supports Postgres.  Since Yap is built on top of [jooq](http://www.jooq.org), we expect to support the following platforms soon:
 
  * Postgres
  * SQL Server
  * MySQL
  * Oracle
+
+Limitations
+-----------
+Currently, yap does not:
+
+ * manage your schema for you.  You are responsible for creating your own tables.
+ * persist arrays or collections of non-model objects, such as List<String>
+ * support versioning (optimistic locking), though this is coming soon.
 
 About the Name
 --------------

@@ -80,6 +80,138 @@ public class PersistenceContext {
     }
 
     /**
+     * Finds a single model based on the value of a field.
+     * @param type The model type
+     * @param fieldName The name of the field to search
+     * @param value The value to search for
+     */
+    public Model findBy(String type, String fieldName, String value) {
+        return findBy(type, field(fieldName).equal(value));
+    }
+
+    /**
+     * Finds a single model based on the value of a field.
+     * @param type The model type
+     * @param conditions jOOq conditions to search for
+     * @return
+     */
+    public Model findBy(String type, Condition... conditions) {
+        ModelType md = metaDataFor(type);
+
+        Record record = jooq.select()
+                .from(md.getTable())
+                .where(conditions)
+                .fetchOne();
+
+        return new Model(record.intoMap(), md, this);
+    }
+
+    /**
+     * Lists all models for a given type.
+     * @param type
+     * @return
+     */
+    public List<Model> list(String type) {
+        return findAllBy(type, new HashMap<String, Object>(), null, false);
+    }
+    public List<Model> list(String type, String orderBy, boolean isAscending) {
+        return findAllBy(type, new HashMap<String, Object>(), orderBy, isAscending);
+    }
+
+    /**
+     * Finds all matching models by a field value.
+     * @param type
+     * @param fieldName
+     * @param value
+     * @return
+     */
+    public List<Model> findAllBy(String type, String fieldName, String value) {
+        return findAllBy(type, fieldName, value, null, false);
+    }
+    public List<Model> findAllBy(String type, String fieldName, String value, String orderBy, boolean isAscending) {
+        return findAllBy(type, orderBy, isAscending, field(fieldName).equal(value));
+    }
+
+    /**
+     * Finds all matching models by one or more field values. All fields must match exactly.
+     * @param type
+     * @param values
+     * @return
+     */
+    public List<Model> findAllBy(String type, Map<String, Object> values) {
+        return findAllBy(type, values, null, false);
+    }
+    public List<Model> findAllBy(String type, Map<String, Object> values, String orderBy, boolean isAscending) {
+        List<Condition> conditions = new LinkedList<Condition>();
+
+        for(Map.Entry<String, Object> entry:values.entrySet()) {
+            conditions.add(field(entry.getKey()).equal(entry.getValue()));
+        }
+
+        return findAllBy(type, orderBy, isAscending, conditions.toArray(new Condition[conditions.size()]));
+    }
+
+    /**
+     * Finds all models matching the specified conditions
+     * @param type
+     * @param conditions
+     * @return
+     */
+    public List<Model> findAllBy(String type, String orderBy, boolean isAscending, Condition... conditions) {
+        ModelType md = metaDataFor(type);
+
+        SelectConditionStep<Record> where = jooq.select()
+                .from(md.getTable())
+                .where(conditions);
+
+        if(orderBy != null) {
+            Field<Object> field = field(orderBy);
+
+            if(isAscending) {
+                where.orderBy(field.asc());
+            } else {
+                where.orderBy(field.desc());
+            }
+        }
+
+        List<Model> models = new LinkedList<Model>();
+
+        for(Record record:where.fetch()) {
+            models.add(new Model(record.intoMap(), md, this));
+        }
+
+        return models;
+    }
+
+    /**
+     * Returns a list of models based on a jOOq query.  This allows you to use jOOq to execute ad-hoc queries.
+     * @param type
+     * @param result
+     * @return
+     */
+    public List<Model> fromJooqResult(String type, Result<Record> result) {
+        ModelType md = metaDataFor(type);
+        List<Model> models = new LinkedList<Model>();
+
+        for(Record record:result) {
+            models.add(new Model(record.intoMap(), md, this));
+        }
+
+        return models;
+    }
+
+    /**
+     * Creates a jOOq euery that you can add to and ultimately use with fromJooqResult().
+     * This is equivalent to doing select().from(table) in jOOq.
+     * @param type
+     * @return
+     */
+    public SelectJoinStep<Record> createJooqQuery(String type) {
+        ModelType md = metaDataFor(type);
+        return jooq.select().from(md.getTable());
+    }
+
+    /**
      * Saves a record, doing and insert or updated where appropriate.
      * @param model
      */

@@ -1,4 +1,4 @@
-package org.yapframework.test;
+package org.yapframework.test.config;
 
 import org.apache.commons.dbcp.ConnectionFactory;
 import org.apache.commons.dbcp.DriverManagerConnectionFactory;
