@@ -224,7 +224,7 @@ public class PersistenceContext {
      * @param model
      */
     public void delete(Model model) {
-        ModelType md = model.getMetaData();
+        ModelType md = model.getType();
         jooq.delete(table(md.getTable()))
                 .where(field(md.getPrimaryKey()).equal(model.getValues().get(md.getPrimaryKey())))
                 .execute();
@@ -239,7 +239,7 @@ public class PersistenceContext {
      * @return
      */
     public <T> T fetch(Model model, String fieldName, Class<T> retClass) {
-        ModelType metaData = model.getMetaData();
+        ModelType metaData = model.getType();
 
         /*
          * If fieldName is not found as a key in the value map, it must be a lazy-loaded relationship
@@ -275,7 +275,7 @@ public class PersistenceContext {
     // TODO check for unsaved transient belongsTo
     private void insert(Model model, HasMany relationship, Object foreignKeyValue) {
         validate(model);
-        ModelType md = model.getMetaData();
+        ModelType md = model.getType();
 
         jooq.insertInto(table(md.getTable()))
                 .set(toFieldValueMap(model, relationship, foreignKeyValue))
@@ -295,7 +295,7 @@ public class PersistenceContext {
      */
     private void update(Model model, HasMany relationship, Object foreignKeyValue) {
         validate(model);
-        ModelType md = model.getMetaData();
+        ModelType md = model.getType();
 
         jooq.update(table(md.getTable()))
                 .set(toFieldValueMap(model, relationship, foreignKeyValue))
@@ -311,7 +311,7 @@ public class PersistenceContext {
      */
     private Map<Field<?>, Object> toFieldValueMap(Model model, HasMany relationship, Object foreignKeyValue) {
         Map<Field<?>, Object> result = new HashMap<Field<?>, Object>();
-        ModelType md = model.getMetaData();
+        ModelType md = model.getType();
         String primaryKey = md.getPrimaryKey();
 
         for(Map.Entry<String, Object> entry:model.getValues().entrySet()) {
@@ -372,7 +372,7 @@ public class PersistenceContext {
      * @param model
      */
     private void saveCollections(Model model) {
-        ModelType md = model.getMetaData();
+        ModelType md = model.getType();
 
         for(Relationship rel:md.getRelationships().values()) {
             if(rel instanceof HasMany) {

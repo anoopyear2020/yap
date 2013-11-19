@@ -11,20 +11,19 @@ import java.util.Map;
  */
 public class Model {
     private Map<String,Object> values;
-    private ModelType metaData;
+    private ModelType type;
     private PersistenceContext context;
     private int order;
-    private boolean markedForDestruction;
 
-    public Model(ModelType metaData, PersistenceContext context) {
-        this.metaData = metaData;
+    public Model(ModelType type, PersistenceContext context) {
+        this.type = type;
         this.context = context;
         values = new HashMap<String,Object>();
     }
 
-    Model(Map<String,Object> values, ModelType metaData, PersistenceContext context) {
+    Model(Map<String,Object> values, ModelType type, PersistenceContext context) {
         this.values = values;
-        this.metaData = metaData;
+        this.type = type;
         this.context = context;
     }
 
@@ -32,8 +31,8 @@ public class Model {
      * Gets the persistence metadata.
      * @return
      */
-    public ModelType getMetaData() {
-        return metaData;
+    public ModelType getType() {
+        return type;
     }
 
     /**
@@ -41,7 +40,7 @@ public class Model {
      * @return
      */
     public Object getId() {
-        return values.get(metaData.getPrimaryKey());
+        return values.get(type.getPrimaryKey());
     }
 
     /**
@@ -50,7 +49,7 @@ public class Model {
      * @return
      */
     public <T> T getId(Class<T> retClass) {
-        return (T) values.get(metaData.getPrimaryKey());
+        return (T) values.get(type.getPrimaryKey());
     }
 
     /**
@@ -144,15 +143,15 @@ public class Model {
     public boolean equals(Object obj) {
         if(obj instanceof Model) {
             Object id = getId();
-            String type = metaData.getName();
+            String type = this.type.getName();
 
             if(id == null || type == null) {
                 return super.equals(obj);
             } else {
                 Model model = (Model) obj;
 
-                if(model.metaData != null) {
-                    return id.equals(model.getId()) && type.equals(model.metaData.getName());
+                if(model.type != null) {
+                    return id.equals(model.getId()) && type.equals(model.type.getName());
                 }
             }
         }

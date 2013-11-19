@@ -61,6 +61,7 @@
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
             <version>3.0.7</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

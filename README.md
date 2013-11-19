@@ -55,7 +55,7 @@ Find a model instance:
 ```java
 Model contact = yap.find("Contact", id);
 String firstName = contact.get("first_name", String.class); // get simple property
-List<Model> phoneNumbers = contact.getList("phoneNumbers"); // get relationship property, lazy-loaded!
+List<Model> phoneNumbers = contact.getList("phone_numbers"); // get relationship property, lazy-loaded!
 ```
 
 Make a change:
