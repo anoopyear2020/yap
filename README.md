@@ -1,6 +1,6 @@
 Yap
 ===
-**Problem:** You want to use Hibernate but can't because your application allows users to customize the data model.
+**Problem:** You want to use Hibernate but can't because your application allows users to create their own tables.
 
 **Solution:** Yap is a runtime (re)configurable orm for Java that doesn't require compiled model classes or static mappings.
 
@@ -38,7 +38,7 @@ CREATE TABLE phone_numbers (
 );
 ```
 
-Configure a yap PersistenceContext:
+Configure a Yap PersistenceContext:
 ```java
 ModelType contact = new ModelType("Contact")
         .table("contacts")
