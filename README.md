@@ -4,6 +4,21 @@ Yap
 
 **Solution:** Yap is a runtime (re)configurable orm for Java that doesn't require compiled model classes or static mappings.
 
+Features
+--------
+Yap supports the following common ORM features:
+
+ * Basic CRUD
+ * Relationships (hasMany, belongsTo, hasAndBelongsToMany)
+ * Lazy-loading
+ * Optimistic Locking
+ * Querying (via jOOq)
+
+Plus a few unique features that make Yap awesome:
+
+ * Mappings can be reconfigured at runtime when tables and columns are added/removed.
+ * No compiled classes are required.
+
 Using
 -----
 Create your tables using SQL:
@@ -95,7 +110,6 @@ Currently, yap does not:
 
  * manage your schema for you.  You are responsible for creating your own tables.
  * persist arrays or collections of non-model objects, such as List<String>
- * support versioning (optimistic locking), though this is coming soon.
 
 About the Name
 --------------

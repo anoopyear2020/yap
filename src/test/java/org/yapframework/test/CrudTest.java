@@ -3,6 +3,7 @@ package org.yapframework.test;
 import org.junit.Test;
 import org.unitils.dbunit.annotation.DataSet;
 import org.yapframework.Model;
+import org.yapframework.exceptions.OptimisticLockingException;
 
 import static org.junit.Assert.*;
 
@@ -63,5 +64,23 @@ public class CrudTest extends PersistenceContextTest {
     @Test public void testDelete() {
         context.delete(context.find("Contact", 1));
         assertNull(context.find("Contact", 1));
+    }
+
+    @Test(expected = OptimisticLockingException.class)
+    public void testOptimisticLockingException() {
+        Model contact = context.find("Contact", 1);
+        contact.setVersion(0);
+        contact.save();
+    }
+
+    @Test public void testUpdateVersion() {
+        Model contact = context.create("Contact");
+        contact.set("first_name", "Bill");
+        contact.save();
+        assertEquals((Integer) 0, contact.getVersion());
+        contact.save();
+        assertEquals((Integer) 1, contact.getVersion());
+        contact = context.find("Contact", contact.getId());
+        assertEquals((Integer) 1, contact.getVersion());
     }
 }

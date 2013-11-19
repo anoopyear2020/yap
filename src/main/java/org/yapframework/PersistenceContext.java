@@ -3,14 +3,13 @@ package org.yapframework;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 import org.yapframework.exceptions.InvalidModelTypeException;
+import org.yapframework.exceptions.OptimisticLockingException;
 import org.yapframework.metadata.*;
 
 import javax.sql.DataSource;
 import java.util.*;
 
-import static org.jooq.impl.DSL.castNull;
-import static org.jooq.impl.DSL.field;
-import static org.jooq.impl.DSL.table;
+import static org.jooq.impl.DSL.*;
 
 /**
  * Persistence configuration
@@ -261,6 +260,9 @@ public class PersistenceContext {
     // Begin private methods
 
     private void save(Model model, HasMany relationship, Object foreignKeyValue) {
+        validate(model);
+        checkAndIncrementVersion(model);
+
         if(model.getId() == null) {
             insert(model, relationship, foreignKeyValue);
         } else {
@@ -274,7 +276,6 @@ public class PersistenceContext {
      */
     // TODO check for unsaved transient belongsTo
     private void insert(Model model, HasMany relationship, Object foreignKeyValue) {
-        validate(model);
         ModelType md = model.getType();
 
         jooq.insertInto(table(md.getTable()))
@@ -294,14 +295,42 @@ public class PersistenceContext {
      * @param model
      */
     private void update(Model model, HasMany relationship, Object foreignKeyValue) {
-        validate(model);
-        ModelType md = model.getType();
+        ModelType type = model.getType();
 
-        jooq.update(table(md.getTable()))
+        jooq.update(table(type.getTable()))
                 .set(toFieldValueMap(model, relationship, foreignKeyValue))
-                .where(field(md.getPrimaryKey()).equal(model.getId())).execute();
+                .where(field(type.getPrimaryKey()).equal(model.getId())).execute();
 
         saveCollections(model);
+    }
+
+    /**
+     * Checks that the model's version matches the value currently stored in the database.
+     * If so, the version number is incremented, otherwise a OptimisticLockingException is thrown.
+     * This method will skip version checking and set the version to 0 if the model is unsaved.
+     * @param model
+     * @throws OptimisticLockingException
+     */
+    private void checkAndIncrementVersion(Model model) {
+        ModelType type = model.getType();
+
+        if(type.getVersionColumn() == null) return;
+
+        if(model.getId() == null) {
+            model.setVersion(0);
+        } else {
+            Integer version = model.getVersion();
+
+            Record r = jooq.select(field(type.getVersionColumn()))
+                    .from(table(type.getTable()))
+                    .where(field(type.getPrimaryKey()).equal(model.getId())).fetchOne();
+
+            if(!r.getValue(type.getVersionColumn()).equals(version)) {
+                throw new OptimisticLockingException();
+            } else {
+                model.setVersion(version + 1);
+            }
+        }
     }
 
     /**

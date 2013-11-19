@@ -45,6 +45,7 @@ public class PostgresTestConfiguration {
     private static ModelType createContactModelType() {
         return new ModelType("Contact")
                 .table("contacts")
+                .versionColumn("version")
                 .relationship(new HasMany("phone_numbers").type("PhoneNumber").column("contact_id").orderColumn("position").deleteOrphans(true))
                 .relationship(new BelongsTo("gender").type("Gender").column("gender_id"))
                 .relationship(new HasAndBelongsToMany("groups").type("Group").column("group_id").table("contacts_groups").foreignKeyColumn("contact_id").orderColumn("position"));

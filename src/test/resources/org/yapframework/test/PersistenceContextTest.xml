@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <dataset>
-    <contacts id="1" first_name="John" last_name="Doe" gender_id="1"/>
-    <contacts id="2" first_name="John" last_name="Smith" gender_id="1"/>
-    <contacts id="3" first_name="Jill" last_name="Smith" gender_id="2"/>
+    <contacts id="1" first_name="John" last_name="Doe" gender_id="1" version="1"/>
+    <contacts id="2" first_name="John" last_name="Smith" gender_id="1" version="1"/>
+    <contacts id="3" first_name="Jill" last_name="Smith" gender_id="2" version="1"/>
 
     <phone_numbers type="Home" number="555-1212" contact_id="1" position="0"/>
     <phone_numbers type="Mobile" number="555-1234" contact_id="1" position="1"/>

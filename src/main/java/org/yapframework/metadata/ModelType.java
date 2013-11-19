@@ -10,6 +10,7 @@ public class ModelType {
     private String name;
     private String table;
     private String primaryKey = "id";
+    private String versionColumn;
     private Map<String,Relationship> relationships = new HashMap<String, Relationship>();
 
     public ModelType(String name) {
@@ -94,5 +95,23 @@ public class ModelType {
      */
     public boolean hasRelationshipFor(String field) {
         return relationships.containsKey(field);
+    }
+
+    /**
+     * Gets the version column, if one is configured.
+     * @return
+     */
+    public String getVersionColumn() {
+        return versionColumn;
+    }
+
+    /**
+     * Sets a version column for this model type
+     * @param versionColumn
+     * @return this
+     */
+    public ModelType versionColumn(String versionColumn) {
+        this.versionColumn = versionColumn;
+        return this;
     }
 }

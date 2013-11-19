@@ -53,6 +53,47 @@ public class Model {
     }
 
     /**
+     * Sets the primary key value for this model.
+     * @param id
+     * @return
+     */
+    public Model setId(Object id) {
+        set(type.getPrimaryKey(), id);
+        return this;
+    }
+
+    /**
+     * Gets the version number used for optimistic locking.
+     * @return
+     */
+    public Integer getVersion() {
+        String column = type.getVersionColumn();
+
+        if(column == null) {
+            return null;
+        } else {
+            return get(column, Integer.class);
+        }
+    }
+
+    /**
+     * Sets the version number used for optimistic locking.
+     * @param version
+     * @return
+     */
+    public Model setVersion(Integer version) {
+        String column = type.getVersionColumn();
+
+        if(column == null) {
+            throw new RuntimeException("Versioning is not configured for model type " + type.getName());
+        } else {
+            set(column, version);
+        }
+
+        return this;
+    }
+
+    /**
      * Gets a field's value.
      * @param fieldName
      * @param retClass
