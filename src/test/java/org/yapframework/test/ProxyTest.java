@@ -27,6 +27,10 @@ public class ProxyTest extends PersistenceContextTest {
 
     private HasAndBelongsToManyProxy<Integer,Project> proxy;
 
+    private Project p1 = new Project(1),
+            p2 = new Project(2),
+            p3 = new Project(3);
+
     @Before
     public void configureProxy() {
         proxy = EasyMock.createMock(HasAndBelongsToManyProxy.class);
@@ -56,8 +60,6 @@ public class ProxyTest extends PersistenceContextTest {
 
     @Test
     public void testRemoveHasAndBelongsToMany() {
-        Project p1 = new Project(1), p2 = new Project(2);
-
         expect(proxy.fetch(1)).andReturn(p1).atLeastOnce();
         expect(proxy.fetch(2)).andReturn(p2).atLeastOnce();
         expect(proxy.idFor(p1)).andReturn(p1.id);
@@ -75,8 +77,6 @@ public class ProxyTest extends PersistenceContextTest {
 
     @Test
     public void testAddHasAndBelongsToMany() {
-        Project p1 = new Project(1), p2 = new Project(2), p3 = new Project(3);
-
         expect(proxy.fetch(1)).andReturn(p1).atLeastOnce();
         expect(proxy.fetch(2)).andReturn(p2).atLeastOnce();
         expect(proxy.idFor(p1)).andReturn(p1.id);
@@ -95,6 +95,21 @@ public class ProxyTest extends PersistenceContextTest {
         projects = context.find("Contact", 1).getList("projects", Project.class);
         assertEquals(3, projects.size());
         assertEquals(p3, projects.get(2));
+    }
+
+    /**
+     * Tests that subsequent calls to getList do not cause repeated fetching
+     */
+    @Test
+    public void testFetchedCollectionIsCached() {
+        expect(proxy.fetch(1)).andReturn(p1);
+        expect(proxy.fetch(2)).andReturn(p2);
+        replay(proxy);
+
+        Model contact = context.find("Contact", 1);
+        contact.getList("projects", Project.class);
+        contact.getList("projects", Project.class);
+        verify(proxy);
     }
 
     @Test
