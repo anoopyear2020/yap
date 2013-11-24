@@ -18,7 +18,8 @@ public class CrudTest extends PersistenceContextTest {
         assertNull(context.find("Contact", 1).getModel("gender"));
     }
 
-    @Test public void testInsertSetId() {
+    @Test
+    public void testInsertSetId() {
         Model m = context.create("Contact")
                 .set("first_name", "Joe")
                 .save();
@@ -26,7 +27,8 @@ public class CrudTest extends PersistenceContextTest {
         assertNotNull(m.getId());
     }
 
-    @Test public void testInsertNull() {
+    @Test
+    public void testInsertNull() {
         Model contact = context.create("Contact")
                 .set("first_name", "anonymous")
                 .set("last_name", null)
@@ -36,7 +38,8 @@ public class CrudTest extends PersistenceContextTest {
         assertNull(contact.get("last_name", String.class));
     }
 
-    @Test public void testUpdateNull() {
+    @Test
+    public void testUpdateNull() {
         Model contact = context.find("Contact", 1);
         assertNotNull(contact.get("last_name", String.class));
 
@@ -47,21 +50,24 @@ public class CrudTest extends PersistenceContextTest {
         assertNull(contact.get("last_name", String.class));
     }
 
-    @Test public void testDestroyHasMany() {
+    @Test
+    public void testDestroyHasMany() {
         Model contact = context.find("Contact", 1);
         contact.getList("phone_numbers").remove(1);
         contact.save();
         assertEquals(1, context.find("Contact", 1).getList("phone_numbers").size());
     }
 
-    @Test public void testDestroyHasAndBelongsToMany() {
+    @Test
+    public void testDestroyHasAndBelongsToMany() {
         Model contact = context.find("Contact", 1);
         contact.getList("groups").remove(1);
         contact.save();
         assertEquals(1, context.find("Contact", 1).getList("groups").size());
     }
 
-    @Test public void testDelete() {
+    @Test
+    public void testDelete() {
         context.delete(context.find("Contact", 1));
         assertNull(context.find("Contact", 1));
     }
@@ -73,7 +79,8 @@ public class CrudTest extends PersistenceContextTest {
         contact.save();
     }
 
-    @Test public void testUpdateVersion() {
+    @Test
+    public void testUpdateVersion() {
         Model contact = context.create("Contact");
         contact.set("first_name", "Bill");
         contact.save();

@@ -1,5 +1,7 @@
 package org.yapframework.metadata;
 
+import org.yapframework.PropertyProxy;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,7 +13,8 @@ public class ModelType {
     private String table;
     private String primaryKey = "id";
     private String versionColumn;
-    private Map<String,Relationship> relationships = new HashMap<String, Relationship>();
+    private Map<String,Relationship<?>> relationships = new HashMap<String, Relationship<?>>();
+    private Map<String,PropertyProxy<?,?>> propertyProxies = new HashMap<String, PropertyProxy<?,?>>();
 
     public ModelType(String name) {
         this.name = name;
@@ -66,7 +69,7 @@ public class ModelType {
      * @param rel
      * @return
      */
-    public ModelType relationship(Relationship rel) {
+    public ModelType relationship(Relationship<?> rel) {
         relationships.put(rel.getName(), rel);
         return this;
     }
@@ -84,7 +87,7 @@ public class ModelType {
      * Gets a map of all relationships
      * @return
      */
-    public Map<String, Relationship> getRelationships() {
+    public Map<String, Relationship<?>> getRelationships() {
         return relationships;
     }
 
@@ -113,5 +116,20 @@ public class ModelType {
     public ModelType versionColumn(String versionColumn) {
         this.versionColumn = versionColumn;
         return this;
+    }
+
+    public ModelType proxyProperty(String name, PropertyProxy<?,?> proxy) {
+        propertyProxies.put(name, proxy);
+        return this;
+    }
+
+    /**
+     * Gets the configured property proxy for the specified property name
+     * @param name The property name
+     * @param <T>
+     * @return
+     */
+    public PropertyProxy<?,?> proxyForProperty(String name) {
+        return propertyProxies.get(name);
     }
 }

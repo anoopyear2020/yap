@@ -1,9 +1,12 @@
 package org.yapframework.metadata;
 
+import org.yapframework.HasAndBelongsToManyProxy;
+
 public class HasAndBelongsToMany extends CollectionRelationship<HasAndBelongsToMany> {
     private String table;
     private String foreignKeyColumn;
     private String orderColumn;
+    private HasAndBelongsToManyProxy proxy;
 
     public HasAndBelongsToMany(String name) {
         super(name);
@@ -33,6 +36,14 @@ public class HasAndBelongsToMany extends CollectionRelationship<HasAndBelongsToM
 
     public HasAndBelongsToMany orderColumn(String orderColumn) {
         this.orderColumn = orderColumn;
+        return this;
+    }
+
+    public HasAndBelongsToManyProxy<?, ?> getProxy() {
+        return proxy;
+    }
+    public HasAndBelongsToMany proxy(HasAndBelongsToManyProxy<?, ?> proxy) {
+        this.proxy = proxy;
         return this;
     }
 }

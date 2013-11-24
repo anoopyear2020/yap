@@ -7,7 +7,9 @@ import org.apache.commons.dbcp.PoolingDataSource;
 import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.jooq.SQLDialect;
+import org.yapframework.Model;
 import org.yapframework.PersistenceContext;
+import org.yapframework.PropertyProxy;
 import org.yapframework.metadata.BelongsTo;
 import org.yapframework.metadata.HasAndBelongsToMany;
 import org.yapframework.metadata.HasMany;
@@ -46,9 +48,22 @@ public class PostgresTestConfiguration {
         return new ModelType("Contact")
                 .table("contacts")
                 .versionColumn("version")
+                .proxyProperty("yap", createTestProxy())
                 .relationship(new HasMany("phone_numbers").type("PhoneNumber").column("contact_id").orderColumn("position").deleteOrphans(true))
                 .relationship(new BelongsTo("gender").type("Gender").column("gender_id"))
                 .relationship(new HasAndBelongsToMany("groups").type("Group").column("group_id").table("contacts_groups").foreignKeyColumn("contact_id").orderColumn("position"));
+    }
+
+    private static PropertyProxy<String,String> createTestProxy() {
+        return new PropertyProxy<String, String>() {
+            public String get(Model model) {
+                return "yap yap yap";
+            }
+
+            public void set(Model model, String value) {
+                model.getValues().put("yap", "yap yap yap");
+            }
+        };
     }
 
     private static ModelType createPhoneNumberModelType() {

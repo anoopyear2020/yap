@@ -17,7 +17,8 @@ public class FetchTest extends PersistenceContextTest {
         assertEquals("Doe", contact.get("last_name", String.class));
     }
 
-    @Test public void testFetchHasMany() {
+    @Test
+    public void testFetchHasMany() {
         Model contact = context.find("Contact", 1);
         assertNull(contact.getValues().get("phone_numbers")); // ensure lazy-loaded
         List<Model> phoneNumbers = contact.getList("phone_numbers");
@@ -26,7 +27,8 @@ public class FetchTest extends PersistenceContextTest {
         assertEquals("Mobile", phoneNumbers.get(1).get("type", String.class));
     }
 
-    @Test public void testFetchHasAndBelongsToMany() {
+    @Test
+    public void testFetchHasAndBelongsToMany() {
         Model contact = context.find("Contact", 1);
         assertNull(contact.getValues().get("groups")); // ensure lazy-loaded
         List<Model> groups = contact.getList("groups");
@@ -35,7 +37,8 @@ public class FetchTest extends PersistenceContextTest {
         assertEquals("Coworkers", groups.get(1).get("name", String.class));
     }
 
-    @Test public void testFetchBelongsTo() {
+    @Test
+    public void testFetchBelongsTo() {
         Model contact = context.find("Contact", 1);
         assertNull(contact.getValues().get("gender")); // ensure lazy-loaded
         assertEquals("Male", contact.getModel("gender").get("name", String.class));

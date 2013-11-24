@@ -101,14 +101,19 @@ public class Model {
      * @return
      */
     public <T> T get(String fieldName, Class<T> retClass) {
-        T value = (T) values.get(fieldName);
+        PropertyProxy<?, T> proxy = (PropertyProxy<?, T>) type.proxyForProperty(fieldName);
 
-        if(!values.containsKey(fieldName)) {
-            value = context.fetch(this, fieldName, retClass);
-            values.put(fieldName, value);
+        if(proxy != null) {
+            return proxy.get(this);
         }
 
-        return value;
+        if(values.containsKey(fieldName)) {
+            return (T) values.get(fieldName);
+        } else  {
+            T value = context.fetch(this, fieldName, retClass);
+            values.put(fieldName, value);
+            return value;
+        }
     }
 
     /**
@@ -130,13 +135,31 @@ public class Model {
     }
 
     /**
+     * Convenience method to get a proxied collection property
+     * @param fieldName The name of the relationship
+     * @param itemType The type of each item in the collection
+     * @param <T>
+     * @return
+     */
+    public <T> List<T> getList(String fieldName, Class<T> itemType) {
+        return (List<T>) get(fieldName, List.class);
+    }
+
+    /**
      * Sets a field's value.
      * @param fieldName
      * @param value
      * @return the model instance
      */
     public Model set(String fieldName, Object value) {
-        values.put(fieldName, value);
+        PropertyProxy<Object,?> proxy = (PropertyProxy<Object, ?>) type.proxyForProperty(fieldName);
+
+        if(proxy != null) {
+            proxy.set(this, value);
+        } else {
+            values.put(fieldName, value);
+        }
+
         return this;
     }
 

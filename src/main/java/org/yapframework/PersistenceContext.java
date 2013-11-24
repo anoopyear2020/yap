@@ -20,8 +20,23 @@ public class PersistenceContext {
     private Map<String, ModelType> configuration = new HashMap<String, ModelType>();
     private DSLContext jooq;
 
-    public PersistenceContext configure(ModelType md) {
-        configuration.put(md.getName(), md);
+    /**
+     * Configures (or reconfigures) a model type.
+     * @param type
+     * @return
+     */
+    public PersistenceContext configure(ModelType type) {
+        configuration.put(type.getName(), type);
+        return this;
+    }
+
+    /**
+     * Removes a model type from the configuration.
+     * @param name
+     * @return
+     */
+    public PersistenceContext unconfigure(String name) {
+        configuration.remove(name);
         return this;
     }
 
@@ -458,15 +473,16 @@ public class PersistenceContext {
      * @param model The owner model
      */
     private void save(HasAndBelongsToMany rel, Model model) {
-        List<Model> items = model.get(rel.getName(), List.class);
+        List<?> items = model.get(rel.getName(), List.class);
         if(items == null) return;
 
         int order = 0;
         Record[] relations = fetchRelations(rel, model.getId());
+        HasAndBelongsToManyProxy proxy = rel.getProxy();
 
         // save each position in the collection
-        for(Iterator<Model> i = items.iterator(); i.hasNext();) {
-            Model item = i.next();
+        for(Iterator<?> i = items.iterator(); i.hasNext();) {
+            Object id = idFor(i.next(), proxy);
 
             // look for a saved link to update by position
             Record link = relations.length > order ? relations[order] : null;
@@ -475,12 +491,12 @@ public class PersistenceContext {
                 // insert a new position
                 jooq.insertInto(table(rel.getTable()))
                         .set(field(rel.getForeignKeyColumn()), model.getId())
-                        .set(field(rel.getColumn()), item.getId())
+                        .set(field(rel.getColumn()), id)
                         .set(field(rel.getOrderColumn()), order)
                         .execute();
             } else {
                 // update the saved position
-                link.setValue(field(rel.getColumn()), item.getId());
+                link.setValue(field(rel.getColumn()), id);
                 jooq.update(table(rel.getTable())).set(link);
             }
 
@@ -492,6 +508,21 @@ public class PersistenceContext {
                 .where(field(rel.getForeignKeyColumn()).equal(model.getId())
                         .and(field(rel.getOrderColumn()).ge(order)))
                 .execute();
+    }
+
+    /**
+     * Gets the id of the specified item in a HasAndBelongsToMany collection.  Uses the proxy
+     * to get the id if one is defined, otherwise we assume the item is a model.
+     * @param item
+     * @param proxy
+     * @return
+     */
+    private Object idFor(Object item, HasAndBelongsToManyProxy proxy) {
+        if(proxy == null) {
+            return ((Model) item).getId();
+        } else {
+            return proxy.idFor(item);
+        }
     }
 
     /**
@@ -560,16 +591,23 @@ public class PersistenceContext {
      * Fetches the list of models in a HasAndBelongsToMany relationship with the specified model
      * @param rel The relationship
      * @param id The owner model id
-     * @return
+     * @return The items in the collection
      */
-    private List<Model> fetchHasAndBelongsToMany(HasAndBelongsToMany rel, Object id) {
+    private List<?> fetchHasAndBelongsToMany(HasAndBelongsToMany rel, Object id) {
         Record[] relations = fetchRelations(rel, id);
-        List<Model> models = new LinkedList<Model>();
+        List<Object> items = new LinkedList<Object>();
+        HasAndBelongsToManyProxy proxy = rel.getProxy();
 
-        for(Record relation:relations) {
-            models.add(find(rel.getType(), relation.getValue(rel.getColumn())));
+        if(proxy == null) {
+            for(Record relation:relations) {
+                items.add(find(rel.getType(), relation.getValue(rel.getColumn())));
+            }
+        } else {
+            for(Record relation:relations) {
+                items.add(proxy.fetch(relation.getValue(rel.getColumn())));
+            }
         }
 
-        return models;
+        return items;
     }
 }

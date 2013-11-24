@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
 
-    <changeSet id="createTestDb" author="skydump" runOnChange="true">
+    <changeSet id="createTestDb" author="skydump" runAlways="true">
         <createTable tableName="contacts">
             <column name="id" type="int" autoIncrement="true">
                 <constraints primaryKey="true"/>
@@ -42,6 +42,12 @@
         <createTable tableName="genders">
             <column name="id" type="int"/>
             <column name="name" type="varchar(10)"/>
+        </createTable>
+
+        <createTable tableName="contacts_projects">
+            <column name="contact_id" type="int"/>
+            <column name="project_id" type="int"/>
+            <column name="position" type="int"/>
         </createTable>
     </changeSet>
 </databaseChangeLog>
